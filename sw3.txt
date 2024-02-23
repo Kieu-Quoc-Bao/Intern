@@ -1,0 +1,27 @@
+SW3:
+
+ena
+conf t
+host sw3
+
+int range e0/0-1
+swi trunk encapsulation dot1q
+swi mode trunk
+no shut
+exi
+
+vtp domain Vnpro
+vtp mode client
+
+int e0/2
+switchport mode access
+switchport access vlan 1
+no shut
+exi
+
+int e0/1
+spanning-tree vlan 20 cost 1000
+exi
+
+exi
+wr

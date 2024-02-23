@@ -1,0 +1,62 @@
+R2:
+
+ena
+conf t
+host R2
+int e0/0
+no shut
+ip add 192.168.12.2 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/1
+no shut
+ip add 192.168.23.2 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/2
+no shut
+ip add 192.168.22.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int lo0
+no shut
+ip add 192.168.2.1 255.255.255.0
+ip ospf 1 area 0
+exi
+
+router ospf 1
+router-id 2.2.2.2
+exi
+exi
+clear ip ospf process
+y
+conf t
+
+service dhcp
+ip dhcp pool VLAN20
+network 192.168.20.0 255.255.255.0
+default-router 172.16.20.1
+exi
+
+ip dhcp excluded-address 192.168.20.1
+
+access-list 1 deny 192.168.10.0 0.0.0.255
+access-list 1 permit any
+
+line vty 0 4
+login
+access-class 1 in
+exi
+
+access-list 100 permit tcp 192.168.20.0 0.0.0.255 host 192.168.22.2 eq 80
+access-list 100 deny icmp 192.168.10.0 0.0.0.255 host 192.168.22.2 echo
+access-list 100 permit icmp 192.168.10.0 0.0.0.255 host 192.168.22.2 echo-reply
+access-list 100 deny ip any any
+
+int e0/2
+ip access-group 100 out
+exi
+
+
+exi
+wr

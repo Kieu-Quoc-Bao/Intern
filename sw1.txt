@@ -1,0 +1,30 @@
+SW1:
+
+ena
+conf t
+host sw1
+
+int range e0/0-2
+swi trunk encapsulation dot1q
+swi mode trunk
+no shut
+exi
+vlan 10
+name vlan10
+exi
+
+vlan 20
+name vlan20
+exi
+
+vtp domain Vnpro
+vtp mode server
+
+int e0/3
+swi mode acc
+swi acc vlan 10
+no shut
+exi
+
+exi
+wr

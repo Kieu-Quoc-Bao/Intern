@@ -1,0 +1,95 @@
+R3:
+
+ena
+conf t
+host R3
+int e0/0
+no shut
+ip add 192.168.13.3 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/1
+no shut
+ip add 192.168.23.3 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/2
+no shut
+ip add 100.0.0.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int lo0
+no shut
+ip add 192.168.3.1 255.255.255.0
+ip ospf 1 area 0
+exi
+
+router ospf 1
+router-id 3.3.3.3
+exi
+
+exi
+clear ip ospf process
+y
+conf t
+
+int e0/0
+ip ospf cost 100
+exi
+
+access-list 1 permit 192.168.11.0 0.0.0.255 
+access-list 1 permit 192.168.20.0 0.0.0.255
+ip nat inside source list 1 int e0/2 overload
+
+int range e0/0-1
+ip nat inside
+exi
+
+int e0/2
+ip nat outside
+exi
+
+ip route 0.0.0.0 0.0.0.0 100.0.0.2
+
+router ospf 1
+default-information originate
+exi
+
+ip nat inside source static 192.168.10.2 100.0.0.1
+
+int lo1
+no shut
+ip add 192.168.3.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int lo2
+no shut
+ip add 192.168.33.1 255.255.255.0
+ip ospf 1 area 0
+exi
+
+int e0/0.13
+encapsulation dot1q 13
+ip add 192.168.13.3 255.255.255.0
+no shut
+exi
+
+ip route 192.168.1.0 255.255.255.0 e0/0.13
+ip route 192.168.11.0 255.255.255.0 e0/0.13
+
+ipv6 unicast-routing
+int lo1
+ipv6 ena
+ipv6 add 2016:3::1/64
+exi
+
+int e0/0.13
+ipv6 ena
+ipv6 add 2016:13::3/64
+exi
+
+ipv6 route 2016:1::/64 2016:13::1
+
+
+exi
+wr

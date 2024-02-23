@@ -1,0 +1,84 @@
+R1:
+
+ena
+conf t
+host R1
+int e0/1
+no shut
+ip add 192.168.12.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/2
+no shut
+ip add 192.168.13.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int lo0
+no shut
+ip add 192.168.1.1 255.255.255.0
+exi
+int e0/0
+no shut
+encapsulation dot1q 1
+ip ospf 1 area 0
+exi
+
+int e0/0.10
+encapsulation dot1q 10
+ip add 192.168.10.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int e0/0.20
+encapsulation dot1q 20
+ip add 192.168.20.1 255.255.255.0
+ip helper-add 192.168.12.2
+ip ospf 1 area 0
+exi
+
+
+router ospf 1
+router-id 1.1.1.1
+exi
+exi
+clear ip ospf process
+y
+conf t
+
+int e0/2
+ip ospf cost 100
+exi
+
+int lo1
+no shut
+ip add 192.168.1.1 255.255.255.0
+ip ospf 1 area 0
+exi
+int lo2
+no shut
+ip add 192.168.11.1 255.255.255.0
+ip ospf 1 area 0
+exi
+
+int e0/2.13
+encapsulation dot1q 13
+ip add 192.168.13.1 255.255.255.0
+no shut
+exit
+
+ip route 192.168.3.0 255.255.255.0 192.168.13.3
+ip route 192.168.33.1 255.255.255.0 192.168.13.3
+ipv6 unicast-routing
+int lo1
+ipv6 ena
+ipv6 add 2016:1::1/64
+exi
+
+int e0/2.13
+ipv6 ena
+ipv6 add 2016:13::1/64
+exi
+
+ipv6 route 2016:3::/64 2016:13::3
+
+exi
+wr
